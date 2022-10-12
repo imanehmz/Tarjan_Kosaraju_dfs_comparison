@@ -135,7 +135,10 @@ int main()
 
 	cout << "Following are strongly connected components in "
 			"given graph \n";
+	cout << "Why not printing things in here \n";
 	g.printSCCs();
 
 	return 0;
+    //Run ctrl shift y to see the debug console and the results in it
+
 }

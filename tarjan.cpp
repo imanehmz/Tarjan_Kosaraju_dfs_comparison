@@ -176,4 +176,5 @@ int main()
     g5.SCC();
  
     return 0;
+    //Run ctrl shift y to see the debug console and the results in it
 }
