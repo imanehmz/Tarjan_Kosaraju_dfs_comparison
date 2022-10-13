@@ -174,6 +174,8 @@ int main()
     g5.addEdge(3,0);
     g5.addEdge(4,2);
     g5.SCC();
+    int i;
+    cin >> i;
  
     return 0;
     //Run ctrl shift y to see the debug console and the results in it
