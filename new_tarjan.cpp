@@ -15,7 +15,7 @@ public:
 	// On déclare une liste des noeuds visités
 	// Elle est de type booléen car soit visité soit non visité
 	map<int, bool> visited;
-    // On déclare la liste des arcs, une matrice d'adjacence de v
+    // On déclare la liste des arcs, une liste d'adjacence de v accessible par la clé primaire v
 	map<int, list<int> > adj;
 
 	// Une fonction pour ajouter un arc au graphe
