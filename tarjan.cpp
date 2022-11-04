@@ -9,7 +9,7 @@ using namespace std;
 // A class that represents an directed graph
 class Graph
 {
-    int V; // No. of vertices
+    int V; // No. of vertices/sommets
     list<int> *adj; // A dynamic array of adjacency lists
  
     // A Recursive DFS based function used by SCC()
