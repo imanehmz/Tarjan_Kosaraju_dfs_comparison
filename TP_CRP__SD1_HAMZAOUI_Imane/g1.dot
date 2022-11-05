@@ -10,3 +10,4 @@ digraph g1{
     4 -> 7
     6 -> 4 
 }
+//Pour voir le graphe,utilisez la commande "dot -Tpng -O g1.dot"
