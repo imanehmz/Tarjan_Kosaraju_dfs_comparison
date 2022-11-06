@@ -1,144 +1,86 @@
-// C++ Implementation of Kosaraju's algorithm to print all SCCs
-#include <iostream>
-#include <list>
-#include <stack>
+#include <bits/stdc++.h>
+#include <ctime>
+#include <chrono>
+
+
+#define MAX_N 20001
+#define ll long long int
 using namespace std;
+int n, m;
 
-class Graph
-{
-	int V; // No. of vertices
-	list<int> *adj; // An array of adjacency lists
-
-	// Fills Stack with vertices (in increasing order of finishing
-	// times). The top element of stack has the maximum finishing
-	// time
-	void fillOrder(int v, bool visited[], stack<int> &Stack);
-
-	// A recursive function to print DFS starting from v
-	void DFSUtil(int v, bool visited[]);
-public:
-	Graph(int V);
-	void addEdge(int v, int w);
-
-	// The main function that finds and prints strongly connected
-	// components
-	void printSCCs();
-
-	// Function that returns reverse (or transpose) of this graph
-	Graph getTranspose();
+struct Node {
+  vector < int > adj; //vecteur d'adjacence
+  vector < int > rev_adj; //vecteur d'adjacence inverse
 };
 
-Graph::Graph(int V)
-{
-	this->V = V;
-	adj = new list<int>[V];
+Node g[MAX_N];
+
+stack < int > S; //pile ou nous allons garder les sommets visités par DFS
+bool visited[MAX_N];
+
+int component[MAX_N];
+vector < int > components[MAX_N];
+int numComponents;
+
+void dfs_1(int x) {
+  visited[x] = true;
+  for (int i = 0; i < g[x].adj.size(); i++) {
+    if (!visited[g[x].adj[i]]) //premier parcours DFS
+     dfs_1(g[x].adj[i]);
+  }
+  S.push(x); //on empile les sommets
 }
 
-// A recursive function to print DFS starting from v
-void Graph::DFSUtil(int v, bool visited[])
-{
-	// Mark the current node as visited and print it
-	visited[v] = true;
-	cout << v << "ce noeud est visite, ";
-
-	// Recur for all the vertices adjacent to this vertex
-	list<int>::iterator i;
-	for (i = adj[v].begin(); i != adj[v].end(); ++i)
-		if (!visited[*i])
-			DFSUtil(*i, visited);
+void dfs_2(int x) {
+  printf("%d ", x);
+  component[x] = numComponents;
+  components[numComponents].push_back(x);  
+  visited[x] = true;
+  for (int i = 0; i < g[x].rev_adj.size(); i++) {
+    if (!visited[g[x].rev_adj[i]]) 
+    dfs_2(g[x].rev_adj[i]); //deuxieme parcours DFS
+  }
 }
 
-Graph Graph::getTranspose()
-{
-	Graph g(V);
-	for (int v = 0; v < V; v++)
-	{
-		// Recur for all the vertices adjacent to this vertex
-		list<int>::iterator i;
-		for(i = adj[v].begin(); i != adj[v].end(); ++i)
-		{
-			g.adj[*i].push_back(v);
-		}
-	}
-	return g;
+void Kosaraju() {
+  for (int i = 0; i < n; i++)
+    if (!visited[i]) dfs_1(i); //premier parcours DFS du graphe
+
+  for (int i = 0; i < n; i++)
+    visited[i] = false;  //remettre visité a faux pour faire le deuxieme parcours DFS
+
+  while (!S.empty()) {
+    int v = S.top(); //On depile et si le noeud est non visité, on fait le deuxieme parcous DFS
+    S.pop();
+    if (!visited[v]) {
+      printf("Component %d: ", numComponents);
+      dfs_2(v);
+      numComponents++;
+      printf("\n");
+    }
+  }
 }
 
-void Graph::addEdge(int v, int w)
-{
-	adj[v].push_back(w); // Add w to v’s list.
-}
+int main() {
+  cout << "Veuillez copier et coller un des graphes dans les fichiers test.txt\n";
+  cin >> n >> m; //Saisir le nombre de sommets et le nombre d'aretes
+  int a, b;  
+  while (m--) {
+    cin >> a >> b; //saisir les arc par ex 1 2 (arc entre sommet 1 et sommet 2)
+    g[a].adj.push_back(b);
+    g[b].rev_adj.push_back(a);
+  }
+  auto start = std::chrono::system_clock::now();
+    // Some computation here
+  Kosaraju();
+  printf("Total number of components: %d\n", numComponents);
+  auto end = std::chrono::system_clock::now();
+ 
+  std::chrono::duration<double> elapsed_seconds = end-start;
+  std::time_t end_time = std::chrono::system_clock::to_time_t(end);
 
-void Graph::fillOrder(int v, bool visited[], stack<int> &Stack)
-{
-	// Mark the current node as visited and print it
-	visited[v] = true;
-
-	// Recur for all the vertices adjacent to this vertex
-	list<int>::iterator i;
-	for(i = adj[v].begin(); i != adj[v].end(); ++i)
-		if(!visited[*i])
-			fillOrder(*i, visited, Stack);
-
-	// All vertices reachable from v are processed by now, push v
-	Stack.push(v);
-}
-
-// The main function that finds and prints all strongly connected
-// components
-void Graph::printSCCs()
-{
-	stack<int> Stack;
-
-	// Mark all the vertices as not visited (For first DFS)
-	bool *visited = new bool[V];
-	for(int i = 0; i < V; i++)
-		visited[i] = false;
-
-	// Fill vertices in stack according to their finishing times
-	for(int i = 0; i < V; i++)
-		if(visited[i] == false)
-			fillOrder(i, visited, Stack);
-
-	// Create a reversed graph
-	Graph gr = getTranspose();
-
-	// Mark all the vertices as not visited (For second DFS)
-	for(int i = 0; i < V; i++)
-		visited[i] = false;
-
-	// Now process all vertices in order defined by Stack
-	while (Stack.empty() == false)
-	{
-		// Pop a vertex from stack
-		int v = Stack.top();
-		Stack.pop();
-
-		// Print Strongly connected component of the popped vertex
-		if (visited[v] == false)
-		{
-			gr.DFSUtil(v, visited);
-			cout << endl;
-		}
-	}
-}
-
-// Driver program to test above functions
-int main()
-{
-	// Create a graph given in the above diagram
-	Graph g(5);
-	g.addEdge(1, 0);
-	g.addEdge(0, 2);
-	g.addEdge(2, 1);
-	g.addEdge(0, 3);
-	g.addEdge(3, 4);
-
-	cout << "Following are strongly connected components in "
-			"given graph \n";
-	cout << "Why not printing things in here \n";
-	g.printSCCs();
-
-	return 0;
-    //Run ctrl shift y to see the debug console and the results in it
-
+  std::cout << "finished computation at " << std::ctime(&end_time)
+            << "elapsed time: " << elapsed_seconds.count() << "s"
+            << std::endl;
+  return 0;
 }
